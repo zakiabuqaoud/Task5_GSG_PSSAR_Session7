@@ -138,15 +138,70 @@ def q2():
 
     print("Q2 Finished...")
 
+# Q3 method
+def q3():
+    print("Start Question3 ...")
+    gist_temp_df = temp_df[temp_df['Source'] == 'GISTEMP'].copy()
+    gist_temp_df = gist_temp_df.sort_values('Year')
+
+    gist_temp_df['rolling_10'] = gist_temp_df['Mean'].rolling(window=10).mean()
+
+    hottest_row = gist_temp_df.loc[gist_temp_df['Mean'].idxmax()]
+    hottest_year = int(hottest_row['Year'])
+    hottest_temp = hottest_row['Mean']
+
+    plt.figure(figsize=(14, 7))
+    plt.plot(gist_temp_df['Year'], gist_temp_df['Mean'],
+             color='black', linewidth=1.5, label='gist_temp Annual Mean')
+
+    plt.plot(gist_temp_df['Year'], gist_temp_df['rolling_10'],
+             color='red', linewidth=2.5, linestyle='--',
+             label='Rolling 10-Year Average')
+
+    plt.fill_between(gist_temp_df['Year'], gist_temp_df['Mean'], 0,
+                     where=(gist_temp_df['Mean'] >= 0),
+                     color='red', alpha=0.3, label='Above Zero')
+
+    plt.fill_between(gist_temp_df['Year'], gist_temp_df['Mean'], 0,
+                     where=(gist_temp_df['Mean'] < 0),
+                     color='blue', alpha=0.3, label='Below Zero')
+
+    plt.axhline(y=0, color='gray', linestyle='-', linewidth=0.8, alpha=0.7)
+
+    plt.annotate(f'Hottest Year: {hottest_year}\n{hottest_temp:.2f}°C',
+                 xy=(hottest_year, hottest_temp),
+                 xytext=(hottest_year - 15, hottest_temp + 0.3),
+                 arrowprops=dict(arrowstyle='->', color='darkred', lw=1.5),
+                 fontsize=11, fontweight='bold', color='darkred',
+                 bbox=dict(boxstyle='round,pad=0.3', facecolor='yellow', alpha=0.8))
+
+    plt.scatter(hottest_year, hottest_temp, color='darkred', s=80, zorder=5, edgecolors='black')
+
+    plt.title('Global Temperature Anomaly (GISTEMP)\n1880 - Present',
+              fontsize=16, fontweight='bold')
+    plt.xlabel('Year', fontsize=12)
+    plt.ylabel('Temperature Anomaly (°C)', fontsize=12)
+    plt.legend(loc='upper left', fontsize=10)
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
+    print("Finish question3 ...")
+
+def q4():
+    print("Question 4 started ...")
+    print("Question 4 finished ...")
+
 
 # Loading Data
 print("Start Loading Data:...")
 netflix_df = pd.read_csv("../data/raw/netflix_titles.csv")
 chess_games_df = pd.read_csv("../data/raw/chess_games.csv")
 players_df = pd.read_csv("../data/raw/players.csv")
-temp_df = pd.read_csv("../data/raw/players.csv")
+temp_df = pd.read_csv("../data/raw/temp_data.csv")
 print("Finish Loading Data:...")
 
 # Solution on the Question
 q1_median_turns()
 q2()
+q3()
+q4()
