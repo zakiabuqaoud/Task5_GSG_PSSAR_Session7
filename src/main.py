@@ -189,6 +189,34 @@ def q3():
 
 def q4():
     print("Question 4 started ...")
+    movies = netflix_df[netflix_df['type'] == 'Movie'].copy()
+    movies['duration_min'] = movies['duration'].str.extract(r'(\d+)').astype(float)
+    movies_clean = movies.dropna(subset=['duration_min'])
+
+    plt.figure(figsize=(12, 6))
+
+    n, bins, patches = plt.hist(movies_clean['duration_min'],
+                                bins=30,
+                                color='steelblue',
+                                edgecolor='black',
+                                alpha=0.7,
+                                label='Movies')
+
+    mean_dur = movies_clean['duration_min'].mean()
+    plt.axvline(mean_dur, color='red', linestyle='--', linewidth=2,
+                label=f'Mean: {mean_dur:.1f} min')
+
+    median_dur = movies_clean['duration_min'].median()
+    plt.axvline(median_dur, color='green', linestyle='-.', linewidth=2,
+                label=f'Median: {median_dur:.1f} min')
+
+    plt.title('Distribution of Movie Durations on Netflix', fontsize=14, fontweight='bold')
+    plt.xlabel('Duration (minutes)', fontsize=12)
+    plt.ylabel('Number of Movies', fontsize=12)
+    plt.legend()
+    plt.grid(True, alpha=0.3)
+    plt.tight_layout()
+    plt.show()
     print("Question 4 finished ...")
 
 
