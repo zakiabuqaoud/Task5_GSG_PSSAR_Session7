@@ -7,9 +7,9 @@ import numpy as np
 
 # temp_df = pd.read_csv(
 #  'https://raw.githubusercontent.com/'
-# 'datasets/global-temp/main/data/annual.csv')
+# 'datasets/global-temp/main/data/monthly.csv')
 #
-# temp_df.to_csv('../data/raw/temp_data.csv', index=False)
+# temp_df.to_csv('../data/raw/temp_monthly.csv', index=False)
 
 # Q1) Pivot + melt + grouped bar
 def q1_median_turns():
@@ -219,6 +219,65 @@ def q4():
     plt.show()
     print("Question 4 finished ...")
 
+def q5():
+    print("Q5 Started ...")
+    temp_month_df['Date'] = pd.to_datetime(temp_month_df['Year'], format='%Y-%m')
+
+    temp_month_df['year'] = temp_month_df['Date'].dt.year
+    temp_month_df['month'] = temp_month_df['Date'].dt.month
+    temp_month_df['month_name'] = temp_month_df['Date'].dt.strftime('%B')
+
+    df_filtered = temp_month_df[temp_month_df['year'] >= 1950].copy()
+
+    df_filtered['decade'] = (df_filtered['year'] // 10) * 10
+    df_filtered['decade_label'] = df_filtered['decade'].astype(str) + 's'
+
+    pivot_data = df_filtered.pivot_table(
+        index='month_name',
+        columns='decade_label',
+        values='Mean',
+        aggfunc='mean'
+    )
+
+    month_order = ['January', 'February', 'March', 'April', 'May', 'June',
+                   'July', 'August', 'September', 'October', 'November', 'December']
+
+    existing_months = [m for m in month_order if m in pivot_data.index]
+    pivot_data = pivot_data.loc[existing_months]
+    pivot_data = pivot_data.reindex(sorted(pivot_data.columns), axis=1)
+
+    plt.figure(figsize=(14, 10))
+
+    ax = sns.heatmap(
+        pivot_data,
+        cmap='RdYlBu_r',
+        center=0,
+        annot=True,
+        fmt='.2f',
+        linewidths=0.5,
+        linecolor='white',
+        cbar_kws={'label': 'Temperature Anomaly (°C)', 'shrink': 0.8},
+        square=True,
+        annot_kws={'fontsize': 9}
+    )
+    plt.title('Monthly Temperature',
+              fontsize=16, fontweight='bold', pad=20)
+    plt.xlabel('Decade', fontsize=12, fontweight='bold')
+    plt.ylabel('Month', fontsize=12, fontweight='bold')
+
+    ax.tick_params(axis='both', which='major', labelsize=10)
+    plt.xticks(rotation=45, ha='right')
+    plt.yticks(rotation=0)
+
+    season_lines = [2, 5, 8]
+    for line in season_lines:
+        if line < len(pivot_data.index):
+            ax.axhline(y=line, color='black', linewidth=1, linestyle='--', alpha=0.4)
+
+    plt.tight_layout()
+    plt.show()
+    print("Q5 Finished")
+
 
 # Loading Data
 print("Start Loading Data:...")
@@ -226,6 +285,8 @@ netflix_df = pd.read_csv("../data/raw/netflix_titles.csv")
 chess_games_df = pd.read_csv("../data/raw/chess_games.csv")
 players_df = pd.read_csv("../data/raw/players.csv")
 temp_df = pd.read_csv("../data/raw/temp_data.csv")
+temp_month_df = pd.read_csv("../data/raw/temp_monthly.csv")
+
 print("Finish Loading Data:...")
 
 # Solution on the Question
@@ -233,3 +294,4 @@ q1_median_turns()
 q2()
 q3()
 q4()
+q5()
